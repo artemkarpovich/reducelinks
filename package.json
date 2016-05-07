@@ -1,0 +1,19 @@
+{
+  "name": "reducelinks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artemkarpovich/reducelinks.git"
+  },
+  "author": "Artem Karpovich <karpartem94@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/artemkarpovich/reducelinks/issues"
+  },
+  "homepage": "https://github.com/artemkarpovich/reducelinks#readme"
+}
