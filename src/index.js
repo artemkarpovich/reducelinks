@@ -14,5 +14,5 @@ mongoose.connect(config.database);
 app.use('/', router);
 
 app.listen(config.port, function() {
-  console.log('server is running on port ', config.port);
+  console.log('server is running on port:' + config.port);
 });
