@@ -9,6 +9,52 @@ const app = express();
 
 app.set('superSecret', config.secret);
 
+router.post('/users', function(req, res) {
+  User.create({ name: req.body.name, password: req.body.password }, function(err, user) {
+    if(err) {
+      console.log(err);
+    } else {
+      res.send(user);
+    }
+  });
+});
+
+router.get('/users', function(req, res) {
+  User.find({}, function(err, user) {
+    if(err) {
+      console.log(err);
+    } else {
+      res.send(user);
+    }
+  });
+});
+
+router.post('/authenticate', function(req, res) {
+  User.findOne({
+    name: req.body.name
+  }, function(err, user) {
+    if (err) throw err;
+
+    if (!user) {
+      res.json({ success: false, message: 'Authentication failed. User not found.' });
+    } else if (user) {
+      if (user.password != req.body.password) {
+        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+      } else {
+        var token = jwt.sign({name: user.name}, app.get('superSecret'), {
+          expiresIn: '1d'
+        });
+
+        res.json({
+          success: true,
+          message: 'Enjoy your token!',
+          token: token
+        });
+      }
+    }
+  });
+});
+
 router.use(function(req, res, next) {
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
@@ -29,74 +75,42 @@ router.use(function(req, res, next) {
   }
 });
 
-router.post('/authenticate', function(req, res) {
-  User.findOne({
-    name: req.body.name
-  }, function(err, user) {
-    if (err) throw err;
-
-    if (!user) {
-      res.json({ success: false, message: 'Authentication failed. User not found.' });
-    } else if (user) {
-      if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-      } else {
-        var token = jwt.sign(user, app.get('superSecret'), {
-          expiresIn: '1d'
-        });
-
-        res.json({
-          success: true,
-          message: 'Enjoy your token!',
-          token: token
-        });
-      }
-    }
-  });
-});
-
 router.get('/', function(req, res) {
   res.send('Hello world');
 });
 
-router.post('/links', function(req, res) {
-  Link.create({initialLink: req.body.initialLink}, function(err, link) {
-    if(err) {
-      console.log(err);
-    } else {
-      res.send(link);
-    }
-  });
-});
-
 router.get('/links', function(req, res) {
-  Link.find({}, function(err, links) {
-    if(err) {
-      console.log(err);
-    } else {
-      res.send(links);
-    }
-  });
+  User.find({ name: req.decoded.name })
+    .populate('links')
+    .select('-_id links')
+    .sort('-_id')
+    .exec(function (err, user) {
+      if (err) return res.send(err);
+      res.json(user[0].links);
+    });
 });
 
-router.post('/users', function(req, res) {
-  User.create({ name: req.body.name, password: req.body.password }, function(err, user) {
-    if(err) {
-      console.log(err);
-    } else {
-     res.send(user);
-    }
-  });
-});
+router.post('/links', function(req, res) {
+  User.findOne({ name: req.decoded.name }).populate('links').exec(function(err, user) {
+    console.log(req.decoded);
+    var link = new Link({
+      name : req.body.name,
+    });
 
-router.get('/users', function(req, res) {
-  User.find({}, function(err, user) {
-    if(err) {
-      console.log(err);
-    } else {
-      res.send(user);
-    }
-  });
+    user.links.push(link);
+
+    user.save(function (err) {
+      if (err) return res.send(err);
+
+      link.save(function (err) {
+        if (err) return res.send(err);
+
+        res.json({
+          success: true
+        });
+      });
+    })
+  })
 });
 
 export default router;
