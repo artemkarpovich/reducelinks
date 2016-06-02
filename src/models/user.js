@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Link from './link';
 
 const Schema = mongoose.Schema;
 

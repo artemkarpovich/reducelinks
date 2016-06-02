@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import Link from '../models/link';
 import User from '../models/user';
 import config from '../config';
+import { shortLink } from '../library/lib';
 
 const router = express.Router();
 const app = express();
@@ -80,21 +81,19 @@ router.get('/', function(req, res) {
 });
 
 router.get('/links', function(req, res) {
-  User.find({ name: req.decoded.name })
+  User.findOne({ name: req.decoded.name })
     .populate('links')
-    .select('-_id links')
-    .sort('-_id')
     .exec(function (err, user) {
       if (err) return res.send(err);
-      res.json(user[0].links);
+      res.json(user.links);
     });
 });
 
 router.post('/links', function(req, res) {
   User.findOne({ name: req.decoded.name }).populate('links').exec(function(err, user) {
-    console.log(req.decoded);
     var link = new Link({
-      name : req.body.name,
+      initialLink : req.body.initialLink,
+      shortLink: shortLink(),
     });
 
     user.links.push(link);
