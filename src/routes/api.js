@@ -5,12 +5,12 @@ import User from '../models/user';
 import config from '../config';
 import { getUniqueShortLink } from '../library/lib';
 
-const router = express.Router();
+const apiRouter = express.Router();
 const app = express();
 
 app.set('superSecret', config.secret);
 
-router.post('/users', function(req, res) {
+apiRouter.post('/users', function(req, res) {
   User.create({ name: req.body.name, password: req.body.password }, function(err, user) {
     if(err) {
       console.log(err);
@@ -20,7 +20,7 @@ router.post('/users', function(req, res) {
   });
 });
 
-router.get('/users', function(req, res) {
+apiRouter.get('/users', function(req, res) {
   User.find({}, function(err, user) {
     if(err) {
       console.log(err);
@@ -30,7 +30,7 @@ router.get('/users', function(req, res) {
   });
 });
 
-router.post('/authenticate', function(req, res) {
+apiRouter.post('/authenticate', function(req, res) {
   User.findOne({
     name: req.body.name
   }, function(err, user) {
@@ -56,7 +56,7 @@ router.post('/authenticate', function(req, res) {
   });
 });
 
-router.use(function(req, res, next) {
+apiRouter.use(function(req, res, next) {
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
   if (token) {
@@ -76,11 +76,11 @@ router.use(function(req, res, next) {
   }
 });
 
-router.get('/', function(req, res) {
+apiRouter.get('/', function(req, res) {
   res.send('Hello world');
 });
 
-router.get('/links', function(req, res) {
+apiRouter.get('/links', function(req, res) {
   User.findOne({ name: req.decoded.name })
     .populate('links')
     .exec(function (err, user) {
@@ -89,7 +89,7 @@ router.get('/links', function(req, res) {
     });
 });
 
-router.post('/links', function(req, res) {
+apiRouter.post('/links', function(req, res) {
   User.findOne({ name: req.decoded.name }).populate('links').exec(function(err, user) {
     var link = new Link({
       initialLink: req.body.initialLink,
@@ -113,4 +113,4 @@ router.post('/links', function(req, res) {
   })
 });
 
-export default router;
+export default apiRouter;
