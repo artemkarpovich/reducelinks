@@ -9,7 +9,19 @@ redirectRouter.get('/:short_link', function(req, res) {
       console.log(err);
     } else {
       if (link){
+        link.countTransitions++;
+
+        link.save(function(err){
+
+          if (err) return res.send(err);
+
+          res.send({
+            success: true
+          });
+        });
+
         const initialLink = link.initialLink;
+
         res.redirect(initialLink);
       } else {
         return res.status(400);
