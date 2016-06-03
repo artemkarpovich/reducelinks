@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import Link from '../models/link';
 import User from '../models/user';
 import config from '../config';
-import { shortLink } from '../library/lib';
+import { getUniqueShortLink } from '../library/lib';
 
 const router = express.Router();
 const app = express();
@@ -92,8 +92,8 @@ router.get('/links', function(req, res) {
 router.post('/links', function(req, res) {
   User.findOne({ name: req.decoded.name }).populate('links').exec(function(err, user) {
     var link = new Link({
-      initialLink : req.body.initialLink,
-      shortLink: shortLink(),
+      initialLink: req.body.initialLink,
+      shortLink: getUniqueShortLink()
     });
 
     user.links.push(link);
@@ -105,7 +105,8 @@ router.post('/links', function(req, res) {
         if (err) return res.send(err);
 
         res.json({
-          success: true
+          success: true,
+          shortLink: link.shortLink
         });
       });
     })
