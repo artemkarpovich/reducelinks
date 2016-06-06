@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import config from './config';
 import apiRouter from './routes/api';
 import redirectRouter from './routes/redirect';
+import tagsRouter from './routes/tags';
 
 const app = express();
 
@@ -14,6 +15,7 @@ mongoose.connect(config.database);
 
 app.use('/redirect', redirectRouter);
 app.use('/api', apiRouter);
+app.use('/', tagsRouter);
 
 app.listen(config.port, function() {
   console.log('server is running on port:' + config.port);
