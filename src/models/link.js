@@ -7,6 +7,7 @@ export default mongoose.model('Link', new Schema({
   shortLink: { type: String, ref: 'User' },
   date: { type: Date, default: Date.now },
   description: { type: String },
-  tags: { type: String },
-  countTransitions: { type: Number, default: 0 }
+  tags: { type: Array },
+  countTransitions: { type: Number, default: 0 },
+  author: { type: String }
 }));

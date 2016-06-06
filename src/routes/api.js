@@ -20,16 +20,6 @@ apiRouter.post('/users', function(req, res) {
   });
 });
 
-apiRouter.get('/users', function(req, res) {
-  User.find({}, function(err, user) {
-    if(err) {
-      console.log(err);
-    } else {
-      res.send(user);
-    }
-  });
-});
-
 apiRouter.post('/authenticate', function(req, res) {
   User.findOne({
     name: req.body.name
@@ -76,8 +66,14 @@ apiRouter.use(function(req, res, next) {
   }
 });
 
-apiRouter.get('/', function(req, res) {
-  res.send('Hello world');
+apiRouter.get('/users', function(req, res) {
+  User.find({}, function(err, user) {
+    if(err) {
+      console.log(err);
+    } else {
+      res.send(user);
+    }
+  });
 });
 
 apiRouter.get('/links', function(req, res) {
@@ -91,12 +87,13 @@ apiRouter.get('/links', function(req, res) {
 
 apiRouter.post('/links', function(req, res) {
   User.findOne({ name: req.decoded.name }).populate('links').exec(function(err, user) {
-    const tagName = req.body.tags ? req.body.tags : [];
-
+    const tags = req.body.tags ? parseTags(req.body.tags) : [];
     var link = new Link({
       initialLink: req.body.initialLink,
       shortLink: getUniqueShortLink(),
-      tags: parseTags(tagName),
+      tags: tags,
+      description: req.body.description,
+      author: req.decoded.name,
     });
 
     user.links.push(link);
@@ -109,7 +106,8 @@ apiRouter.post('/links', function(req, res) {
 
         res.json({
           success: true,
-          shortLink: link.shortLink
+          shortLink: link.shortLink,
+          link: link,
         });
       });
     })

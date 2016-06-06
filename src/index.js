@@ -14,10 +14,10 @@ app.use(bodyParser.json());
 
 mongoose.connect(config.database);
 
+app.use('/info', infoRouter);
 app.use('/redirect', redirectRouter);
 app.use('/api', apiRouter);
-app.use('/', tagsRouter);
-app.use('/info', infoRouter);
+app.use('/tags', tagsRouter);
 
 app.listen(config.port, function() {
   console.log('server is running on port:' + config.port);
