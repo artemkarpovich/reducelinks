@@ -1,7 +1,7 @@
 import Link from '../models/link';
 import _ from 'lodash';
 
-export function generateShortLink() {
+function generateShortLink() {
   const chars = '123456789abcdfghjkmnpqrstvwxyzABCDFGHJKLMNPQRSTVWXYZ';
   let shortLink = '';
 
@@ -30,4 +30,8 @@ export function getUniqueShortLink() {
   }
 
   return newShortLink;
+}
+
+export function parseTags(tags) {
+  return tags.match(/(\w+)/g);
 }

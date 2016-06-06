@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import Link from '../models/link';
 import User from '../models/user';
 import config from '../config';
-import { getUniqueShortLink } from '../library/lib';
+import { getUniqueShortLink, parseTags } from '../library/lib';
 
 const router = express.Router();
 const app = express();
@@ -91,9 +91,12 @@ router.get('/links', function(req, res) {
 
 router.post('/links', function(req, res) {
   User.findOne({ name: req.decoded.name }).populate('links').exec(function(err, user) {
+    const tagName = req.body.tags ? req.body.tags : [];
+
     var link = new Link({
       initialLink: req.body.initialLink,
-      shortLink: getUniqueShortLink()
+      shortLink: getUniqueShortLink(),
+      tags: parseTags(tagName),
     });
 
     user.links.push(link);
