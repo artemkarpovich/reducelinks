@@ -15,16 +15,13 @@ redirectRouter.get('/:short_link', function(req, res) {
 
           if (err) return res.send(err);
 
-          res.send({
-            success: true
-          });
         });
 
         const initialLink = link.initialLink;
 
         res.redirect(initialLink);
       } else {
-        return res.status(400);
+        return res.status(400).send("Link is not correct");
       }
     }
   });

@@ -11,11 +11,14 @@ const app = express();
 app.set('superSecret', config.secret);
 
 apiRouter.post('/users', function(req, res) {
-  User.create({ name: req.body.name, password: req.body.password }, function(err, user) {
-    if(err) {
+  User.create({name: req.body.name, password: req.body.password}, function(err, user) {
+    if(err){
       console.log(err);
     } else {
-      res.send(user);
+      var token = jwt.sign({ name: user.name }, app.get('superSecret'), {
+        expiresIn: '1d'
+      });
+      res.status(201).send({ name: user.name, token });
     }
   });
 });
@@ -27,19 +30,20 @@ apiRouter.post('/authenticate', function(req, res) {
     if (err) throw err;
 
     if (!user) {
-      res.json({ success: false, message: 'Authentication failed. User not found.' });
+      res.status(400).send({ success: false, message: 'Authentication failed. User not found.' });
     } else if (user) {
       if (user.password != req.body.password) {
-        res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+        res.status(400).send({ success: false, message: 'Authentication failed. Wrong password.' });
       } else {
         var token = jwt.sign({name: user.name}, app.get('superSecret'), {
           expiresIn: '1d'
         });
 
-        res.json({
+        res.status(200).send({
           success: true,
           message: 'Enjoy your token!',
-          token: token
+          token: token,
+          name: user.name,
         });
       }
     }
@@ -104,7 +108,7 @@ apiRouter.post('/links', function(req, res) {
       link.save(function (err) {
         if (err) return res.send(err);
 
-        res.json({
+        res.status(200).json({
           success: true,
           shortLink: link.shortLink,
           link: link,

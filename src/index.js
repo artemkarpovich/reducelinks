@@ -6,11 +6,13 @@ import apiRouter from './routes/api';
 import redirectRouter from './routes/redirect';
 import tagsRouter from './routes/tags';
 import infoRouter from './routes/info';
+import cors from 'cors';
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 mongoose.connect(config.database);
 
